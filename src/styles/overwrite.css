@@ -1,0 +1,19 @@
+/* OVERWRITES BOOTSTRAP IN ALL COMPONENTS */
+
+/* making the app component take 100% from the viewport's height, making a flex-container and making its children vertically centered */
+
+.App {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.weather {
+    color: #353898;
+}
+
+p {
+    margin: 0;
+    margin-bottom: 5px;
+}
