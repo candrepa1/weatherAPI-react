@@ -4,6 +4,7 @@ import CityCountry from './CityCountry.js';
 import Icon from './Icon.js';
 
 const Request = () => {
+    const [loading, setLoading] = useState(true);
     const [city, setCity] = useState('');
     const [country, setCountry] = useState('');
     const [icon, setIcon] = useState('');
@@ -11,21 +12,29 @@ const Request = () => {
     const [temperature, setTemperature] = useState('');
     const [degrees, setDegrees] = useState('');
     const [button, setButton] = useState('');
-    const [main, setMain] = useState('');
     const [wind, setWind] = useState('');
     const [clouds, setClouds] = useState('');
     const [pressure, setPressure] = useState('');
+    const [color, setColor] = useState('');
 
     useEffect(() => {
+        let classList = document.getElementById('App').classList;
+        let result = classList.contains(color);
+        if(result) {
+            document.getElementById('App').classList.remove(color);
+        };
         navigator.geolocation.getCurrentPosition((position) => {
             let latitude = position.coords.latitude;
             let longitude = position.coords.longitude;
 
             let url = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=341eb2821f24c1d5880f160cb8ca206a&units=metric`;
+
+            setLoading(true);
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
                     console.log(data);
+                    setLoading(false);
                     if(data.cod === 200) {
                         setCity(data.name);
                         setCountry(data.sys.country);
@@ -34,10 +43,15 @@ const Request = () => {
                         setTemperature(data.main.temp);
                         setDegrees('°C');
                         setButton('°C / °F');
-                        setMain(data.weather[0].main);
                         setWind(data.wind.speed);
                         setClouds(data.clouds.all);
                         setPressure(data.main.pressure);
+                        const weather_main = { Thunderstorm: 'bg-danger', Drizzle: 'bg-info', Rain: 'bg-dark', Snow: 'bg-warning', Atmosphere: 'bg-primary', Clear: 'bg-success', Clouds: 'bg-light' };
+                        let keys = Object.keys(weather_main);
+                        let keyFound = keys.find(element => element === data.weather[0].main);
+                        let colorFound = weather_main[keyFound];
+                        setColor(colorFound);
+                        document.getElementById('App').classList.add(colorFound);
                     }
                 });
         });
@@ -63,18 +77,17 @@ const Request = () => {
             setButton('°C / °F');
         }
     }
-    const weather_main = { Thunderstorm: 'bg-danger', Drizzle: 'bg-info', Rain: 'bg-secondary', Snow: 'bg-warning', Atmosphere: 'bg-primary', Clear: 'bg-success', Clouds: 'bg-light' };
-    let keys = Object.keys(weather_main);
-    let found = keys.find(element => element === main);
-    // let app = document.getElementById('App');
-    // let bgColor = weather_main[found];
-    // app.classList.add(bgColor);
-    // setColor(bgColor);
-
     return(
         <>
-            <CityCountry name={city} country={country} />
-            <Icon icon_code={icon} description={description} temperature={temperature} degrees={degrees} onclick={handleClick} c_f={button} wind={wind} clouds={clouds} pressure={pressure}/>
+            {loading && (
+                <div className="lds-dual-ring"></div>
+            )}
+            {loading === false && (
+                <>
+                    <CityCountry name={city} country={country} />
+                    <Icon icon_code={icon} description={description} temperature={temperature} degrees={degrees} onclick={handleClick} c_f={button} wind={wind} clouds={clouds} pressure={pressure}/>
+                </>
+            )}
         </>
     )
 }
