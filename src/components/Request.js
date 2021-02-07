@@ -18,11 +18,13 @@ const Request = () => {
     const [color, setColor] = useState('');
 
     useEffect(() => {
+        // checks if '#App' has a bg-color already and removes the color before it renders again. 
         let classList = document.getElementById('App').classList;
         let result = classList.contains(color);
         if(result) {
             document.getElementById('App').classList.remove(color);
         };
+        // using geolocation to access the user's location and using that info to make the API call
         navigator.geolocation.getCurrentPosition((position) => {
             let latitude = position.coords.latitude;
             let longitude = position.coords.longitude;
@@ -33,7 +35,6 @@ const Request = () => {
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
-                    console.log(data);
                     setLoading(false);
                     if(data.cod === 200) {
                         setCity(data.name);
@@ -46,6 +47,7 @@ const Request = () => {
                         setWind(data.wind.speed);
                         setClouds(data.clouds.all);
                         setPressure(data.main.pressure);
+                        // built object weather_main with the main weather from data paired up with a bg-color, and adds it to #App based on what the weather is. 
                         const weather_main = { Thunderstorm: 'bg-danger', Drizzle: 'bg-info', Rain: 'bg-dark', Snow: 'bg-warning', Atmosphere: 'bg-primary', Clear: 'bg-success', Clouds: 'bg-light' };
                         let keys = Object.keys(weather_main);
                         let keyFound = keys.find(element => element === data.weather[0].main);
